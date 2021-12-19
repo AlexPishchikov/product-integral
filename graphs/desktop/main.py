@@ -17,8 +17,9 @@ def visualize(graph_type):
         x = [float(xy[i]) for i in range(0, len(xy), 2)]
         y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
 
-        matplotlib.pyplot.scatter(x, y, c = 'red', label = 'function', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'red')
+        if graph_type.draw_points:
+            matplotlib.pyplot.scatter(x, y, c = 'red', linewidths = 2)
+        matplotlib.pyplot.plot(x, y, c = 'red', label = 'function')
 
     if graph_type.draw_integral:
         coords = open("../solver/integral_coords", "r")
@@ -28,9 +29,9 @@ def visualize(graph_type):
         x = [float(xy[i]) for i in range(0, len(xy), 2)]
         y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
 
-
-        matplotlib.pyplot.scatter(x, y, c = 'green', label = 'integral', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'green')
+        if graph_type.draw_points:
+            matplotlib.pyplot.scatter(x, y, c = 'green', linewidths = 2)
+        matplotlib.pyplot.plot(x, y, c = 'green', label = 'integral')
 
     if graph_type.draw_derivative:
         coords = open("../solver/derivative_coords", "r")
@@ -40,8 +41,9 @@ def visualize(graph_type):
         x = [float(xy[i]) for i in range(0, len(xy), 2)]
         y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
 
-        matplotlib.pyplot.scatter(x, y, c = 'blue', label = 'derivative', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'blue')
+        if graph_type.draw_points:
+            matplotlib.pyplot.scatter(x, y, c = 'blue', linewidths = 2)
+        matplotlib.pyplot.plot(x, y, c = 'blue', label = 'derivative')
 
     matplotlib.pyplot.legend()
     matplotlib.pyplot.savefig('graph.png')
@@ -62,7 +64,8 @@ class Graph_type:
         self.draw_function = True
         self.draw_integral = True
         self.draw_derivative = True
-    
+        self.draw_points = False
+
     def to_string(self):
         return f"{int(self.draw_function == True)}{int(self.draw_integral == True)}{int(self.draw_derivative == True)}"
 
@@ -87,32 +90,67 @@ class MainWindow(QMainWindow):
         self.power_function_radio_button.toggled.connect(self.draw_graph)
         self.exponential_function_radio_button.toggled.connect(self.draw_graph)
 
+        self.points_check_box.toggled.connect(self.draw_graph)
         self.function_check_box.toggled.connect(self.draw_graph)
         self.integral_check_box.toggled.connect(self.draw_graph)
         self.derivative_check_box.toggled.connect(self.draw_graph)
 
-        self.slider_n.valueChanged.connect(self.draw_graph)
-        self.slider_c.valueChanged.connect(self.draw_graph)
-        self.slider_a.valueChanged.connect(self.draw_graph)
-        self.slider_b.valueChanged.connect(self.draw_graph)
-        self.slider_h.valueChanged.connect(self.draw_graph)
+        self.slider_n.valueChanged.connect(lambda: self.change_slider('n', self.slider_n.value()))
+        self.slider_c.valueChanged.connect(lambda: self.change_slider('c', self.slider_c.value()))
+        self.slider_a.valueChanged.connect(lambda: self.change_slider('a', self.slider_a.value()))
+        self.slider_b.valueChanged.connect(lambda: self.change_slider('b', self.slider_b.value()))
+        self.slider_h.valueChanged.connect(lambda: self.change_slider('h', self.slider_h.value()))
 
+        self.n_spin_box.valueChanged.connect(lambda: self.change_spin_box('n', self.n_spin_box.value()))
+        self.c_spin_box.valueChanged.connect(lambda: self.change_spin_box('c', self.c_spin_box.value()))
+        self.a_spin_box.valueChanged.connect(lambda: self.change_spin_box('a', self.a_spin_box.value()))
+        self.b_spin_box.valueChanged.connect(lambda: self.change_spin_box('b', self.b_spin_box.value()))
+        self.h_spin_box.valueChanged.connect(lambda: self.change_spin_box('h', self.h_spin_box.value()))
+
+        self.draw_graph()
+
+    def change_slider(self, name, value):
+        if name == 'n':
+            self.n_spin_box.setValue(value / 10)
+        if name == 'c':
+            self.c_spin_box.setValue(value / 10)
+        if name == 'a':
+            self.a_spin_box.setValue(value / 10)
+        if name == 'b':
+            self.b_spin_box.setValue(value / 10)
+        if name == 'h':
+            self.h_spin_box.setValue(value / 10)
+        self.draw_graph()
+
+    def change_spin_box(self, name, value):
+        new_value = value * 10
+        if value > 10:
+            new_value = 100
+        if value < -10:
+            new_value -100
+        if name == 'n':
+            self.slider_n.setValue(int(new_value))
+        if name == 'c':
+            self.slider_c.setValue(int(new_value))
+        if name == 'a':
+            self.slider_a.setValue(int(new_value))
+        if name == 'b':
+            self.slider_b.setValue(int(new_value))
+        if name == 'h':
+            if value > 11:
+                new_value = 110
+            self.slider_h.setValue(int(new_value))
         self.draw_graph()
 
     def draw_graph(self):
         self.function_params.type = 0 if self.power_function_radio_button.isChecked() else 1
-        self.function_params.n = self.slider_n.value() / 10
-        self.function_params.c = self.slider_c.value() / 10
-        self.function_params.a = self.slider_a.value() / 10
-        self.function_params.b = self.slider_b.value() / 10
-        self.function_params.h = self.slider_h.value() / 100
+        self.function_params.n = float(self.n_spin_box.value())
+        self.function_params.c = float(self.c_spin_box.value())
+        self.function_params.a = float(self.a_spin_box.value())
+        self.function_params.b = float(self.b_spin_box.value())
+        self.function_params.h = float(self.h_spin_box.value())
 
-        self.n_value_label.setText("n = " + str(self.slider_n.value() / 10))
-        self.c_value_label.setText("c = " + str(self.slider_c.value() / 10))
-        self.a_value_label.setText("a = " + str(self.slider_a.value() / 10))
-        self.b_value_label.setText("b = " + str(self.slider_b.value() / 10))
-        self.h_value_label.setText("h = " + str(self.slider_h.value() / 100))
-
+        self.graph_type.draw_points = self.points_check_box.isChecked()
         self.graph_type.draw_function = self.function_check_box.isChecked()
         self.graph_type.draw_integral = self.integral_check_box.isChecked()
         self.graph_type.draw_derivative = self.derivative_check_box.isChecked()
