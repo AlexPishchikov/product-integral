@@ -14,6 +14,12 @@ pub struct FunctionParams {
     pub h : f32,
 }
 
+pub struct GraphType {
+    pub function : bool,
+    pub integral : bool,
+    pub derivative : bool,
+}
+
 fn power_function(x : f32, n : f32, c : f32) -> f32 {
     return c * x.powf(n);
 }
@@ -30,8 +36,8 @@ fn exponential_function_derivative(x : f32, n : f32, c : f32) -> f32 {
     return n * E.powf(n * x + c);
 }
 
-fn parse_input_params(args : Vec<String>) -> FunctionParams {
-    let mut function_params = {
+fn parse_input_params(args : Vec<String>) -> (FunctionParams, GraphType) {
+    let mut function_params : FunctionParams = {
         FunctionParams {
             f : power_function,
             df : power_function_derivative,
@@ -43,13 +49,26 @@ fn parse_input_params(args : Vec<String>) -> FunctionParams {
         }
     };
 
-    let input_f = args[0].parse::<i32>();
-    let input_n = args[1].parse::<f32>();
-    let input_c = args[2].parse::<f32>();
-    let input_a = args[3].parse::<f32>();
-    let input_b = args[4].parse::<f32>();
-    let input_h = args[5].parse::<f32>();
+    let mut graph_type : GraphType = {
+        GraphType {
+            function : true,
+            integral : true,
+            derivative : true,
+        }
+    };
 
+    let input_graph_type : &str = &args[1];
+
+    let input_f = args[0].parse::<i32>();
+    let input_n = args[2].parse::<f32>();
+    let input_c = args[3].parse::<f32>();
+    let input_a = args[4].parse::<f32>();
+    let input_b = args[5].parse::<f32>();
+    let input_h = args[6].parse::<f32>();
+
+    graph_type.function = if input_graph_type.chars().nth(0) == Some('1') {true} else {false};
+    graph_type.integral = if input_graph_type.chars().nth(1) == Some('1') {true} else {false};
+    graph_type.derivative = if input_graph_type.chars().nth(2) == Some('1') {true} else {false};
 
     match input_f {
         Ok(input_f) => {
@@ -102,7 +121,7 @@ fn parse_input_params(args : Vec<String>) -> FunctionParams {
         },
     }
 
-    return function_params;
+    return (function_params, graph_type);
 }
 
 fn calculate_function_coords(function_params : &FunctionParams) {
@@ -136,8 +155,17 @@ fn calculate_integral_coords(function_params : &FunctionParams) {
 
 fn main() {
     let args : Vec<String> = env::args().skip(1).collect();
-    let function_params : FunctionParams = parse_input_params(args);
-    calculate_function_coords(&function_params);
-    calculate_integral_coords(&function_params);
-    calculate_derivative_coords(&function_params);
+    let (function_params, graph_type) : (FunctionParams, GraphType) = parse_input_params(args);
+
+    if graph_type.function {
+        calculate_function_coords(&function_params);
+    }
+
+    if graph_type.integral {
+        calculate_integral_coords(&function_params);
+    }
+
+    if graph_type.derivative {
+        calculate_derivative_coords(&function_params);
+    }
 }
