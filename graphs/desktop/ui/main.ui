@@ -113,7 +113,7 @@
          <item row="2" column="1">
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="0" column="0">
-            <widget class="QLabel" name="a_value_label">
+            <widget class="QLabel" name="value_label_a">
              <property name="text">
               <string>a = </string>
              </property>
@@ -123,7 +123,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="b_spin_box">
+            <widget class="QDoubleSpinBox" name="spin_box_b">
              <property name="decimals">
               <number>1</number>
              </property>
@@ -139,7 +139,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="h_spin_box">
+            <widget class="QDoubleSpinBox" name="spin_box_h">
              <property name="decimals">
               <number>2</number>
              </property>
@@ -155,7 +155,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="b_value_label">
+            <widget class="QLabel" name="value_label_b">
              <property name="text">
               <string>b = </string>
              </property>
@@ -165,7 +165,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="a_spin_box">
+            <widget class="QDoubleSpinBox" name="spin_box_a">
              <property name="decimals">
               <number>1</number>
              </property>
@@ -181,7 +181,7 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="h_value_label">
+            <widget class="QLabel" name="value_label_h">
              <property name="text">
               <string>h = </string>
              </property>
@@ -195,7 +195,7 @@
          <item row="0" column="1">
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="1" column="0">
-            <widget class="QLabel" name="c_value_label">
+            <widget class="QLabel" name="value_label_c">
              <property name="text">
               <string>c = </string>
              </property>
@@ -205,7 +205,7 @@
             </widget>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="n_value_label">
+            <widget class="QLabel" name="value_label_n">
              <property name="text">
               <string>n = </string>
              </property>
@@ -215,7 +215,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="n_spin_box">
+            <widget class="QDoubleSpinBox" name="spin_box_n">
              <property name="decimals">
               <number>1</number>
              </property>
@@ -231,7 +231,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="c_spin_box">
+            <widget class="QDoubleSpinBox" name="spin_box_c">
              <property name="decimals">
               <number>1</number>
              </property>

@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.slider_c.setValue(int(self.function_params.c * 10))
         self.slider_a.setValue(int(self.function_params.a * 10))
         self.slider_b.setValue(int(self.function_params.b * 10))
-        self.slider_h.setValue(int(self.function_params.h * 100))
+        self.slider_h.setValue(int(self.function_params.h * 110))
 
         self.power_function_radio_button.toggled.connect(self.draw_graph)
         self.exponential_function_radio_button.toggled.connect(self.draw_graph)
@@ -101,25 +101,25 @@ class MainWindow(QMainWindow):
         self.slider_b.valueChanged.connect(lambda: self.change_slider('b', self.slider_b.value()))
         self.slider_h.valueChanged.connect(lambda: self.change_slider('h', self.slider_h.value()))
 
-        self.n_spin_box.valueChanged.connect(lambda: self.change_spin_box('n', self.n_spin_box.value()))
-        self.c_spin_box.valueChanged.connect(lambda: self.change_spin_box('c', self.c_spin_box.value()))
-        self.a_spin_box.valueChanged.connect(lambda: self.change_spin_box('a', self.a_spin_box.value()))
-        self.b_spin_box.valueChanged.connect(lambda: self.change_spin_box('b', self.b_spin_box.value()))
-        self.h_spin_box.valueChanged.connect(lambda: self.change_spin_box('h', self.h_spin_box.value()))
+        self.spin_box_n.valueChanged.connect(lambda: self.change_spin_box('n', self.spin_box_n.value()))
+        self.spin_box_c.valueChanged.connect(lambda: self.change_spin_box('c', self.spin_box_c.value()))
+        self.spin_box_a.valueChanged.connect(lambda: self.change_spin_box('a', self.spin_box_a.value()))
+        self.spin_box_b.valueChanged.connect(lambda: self.change_spin_box('b', self.spin_box_b.value()))
+        self.spin_box_h.valueChanged.connect(lambda: self.change_spin_box('h', self.spin_box_h.value()))
 
         self.draw_graph()
 
     def change_slider(self, name, value):
         if name == 'n':
-            self.n_spin_box.setValue(value / 10)
+            self.spin_box_n.setValue(value / 10)
         if name == 'c':
-            self.c_spin_box.setValue(value / 10)
+            self.spin_box_c.setValue(value / 10)
         if name == 'a':
-            self.a_spin_box.setValue(value / 10)
+            self.spin_box_a.setValue(value / 10)
         if name == 'b':
-            self.b_spin_box.setValue(value / 10)
+            self.spin_box_b.setValue(value / 10)
         if name == 'h':
-            self.h_spin_box.setValue(value / 10)
+            self.spin_box_h.setValue(value / 110)
         self.draw_graph()
 
     def change_spin_box(self, name, value):
@@ -137,18 +137,19 @@ class MainWindow(QMainWindow):
         if name == 'b':
             self.slider_b.setValue(int(new_value))
         if name == 'h':
-            if value > 11:
+            new_value *= 11
+            if (value * 11) > 110:
                 new_value = 110
             self.slider_h.setValue(int(new_value))
         self.draw_graph()
 
     def draw_graph(self):
         self.function_params.type = 0 if self.power_function_radio_button.isChecked() else 1
-        self.function_params.n = float(self.n_spin_box.value())
-        self.function_params.c = float(self.c_spin_box.value())
-        self.function_params.a = float(self.a_spin_box.value())
-        self.function_params.b = float(self.b_spin_box.value())
-        self.function_params.h = float(self.h_spin_box.value())
+        self.function_params.n = float(self.spin_box_n.value())
+        self.function_params.c = float(self.spin_box_c.value())
+        self.function_params.a = float(self.spin_box_a.value())
+        self.function_params.b = float(self.spin_box_b.value())
+        self.function_params.h = float(self.spin_box_h.value())
 
         self.graph_type.draw_points = self.points_check_box.isChecked()
         self.graph_type.draw_function = self.function_check_box.isChecked()
