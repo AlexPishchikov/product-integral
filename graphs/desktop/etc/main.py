@@ -33,7 +33,11 @@ def calculate(function_params):
         x = i
         c = function_params.c
         n = function_params.n
-        coords.write(f"{i} {eval(function_params.function)}\n")
+        try:
+            result = eval(function_params.function)
+            print("%.10f %.10f" % (i, result), file = coords)
+        except:
+            print("NaN", file = coords)
         i += function_params.h
     coords.close()
 
@@ -44,8 +48,11 @@ def calculate(function_params):
         x = i
         c = function_params.c
         n = function_params.n
-        result *= eval(function_params.function)
-        print("%.10f %.10f" % (i, result), file = coords)
+        try:
+            result *= eval(function_params.function)
+            print("%.10f %.10f" % (i, result), file = coords)
+        except:
+            print("NaN", file = coords)
         i += function_params.h
     coords.close()
 
@@ -55,18 +62,24 @@ def calculate(function_params):
         x = i
         c = function_params.c
         n = function_params.n
-        f = eval(function_params.function)
 
         x = i + function_params.h
-        fh = eval(function_params.function)
-        result = (fh / f) ** (1 / function_params.h)
-        print("%.10f %.10f" % (i, result), file = coords)
+        try:
+            f = eval(function_params.function)
+            fh = eval(function_params.function)
+            result = (fh / f) ** (1 / function_params.h)
+            print("%.10f %.10f" % (i, result), file = coords)
+        except:
+            print("NaN", file = coords)
         i += function_params.h
     coords.close()
 
 
 def visualize(graph_type):
-    os.system("rm graph.png")
+    try:
+        os.system("rm graph.png")
+    except:
+        pass
     if graph_type.draw_function:
         coords = open("function_coords", "r")
 
