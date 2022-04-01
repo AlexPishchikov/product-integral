@@ -1,9 +1,8 @@
 use std::env;
 use std::process;
-use std::fs::File;
-use std::io::Write;
 
 use meval::*;
+use gnuplot::*;
 
 pub struct FunctionParams {
     pub f : String,
@@ -24,11 +23,11 @@ fn parse_input_params(args : Vec<String>) -> (FunctionParams, PlotType) {
     let mut function_params : FunctionParams = {
         FunctionParams {
             f : "x".to_string(),
-            n : 0.0,
-            c : 0.0,
+            n : 1.0,
+            c : 1.0,
             a : 1.0,
             b : 3.0,
-            h : 0.01,
+            h : 0.1,
         }
     };
 
@@ -111,9 +110,11 @@ fn parse_input_params(args : Vec<String>) -> (FunctionParams, PlotType) {
     return (function_params, plot_type);
 }
 
-fn calculate_function_coords(function_params : &FunctionParams) {
-    let mut output = File::create("function_coords").unwrap();
+fn calculate_function_coords(function_params : &FunctionParams) -> (Vec<f64>, Vec<f64>) {
     let mut i : f64 = function_params.a;
+
+    let mut coords_x : Vec<f64> = Vec::new();
+    let mut coords_y : Vec<f64> = Vec::new();
 
     let mut ctx = Context::new();
     ctx.var("n", function_params.n)
@@ -121,15 +122,40 @@ fn calculate_function_coords(function_params : &FunctionParams) {
     let func = (function_params.f).parse::<Expr>().unwrap().bind_with_context(ctx, "x").unwrap();
 
     while i < function_params.b {
-        writeln!(&mut output, "{} {}", i, func(i)).unwrap();
+        coords_x.push(i);
+        coords_y.push(func(i));
         i += function_params.h;
     }
+
+    return (coords_x, coords_y);
 }
 
-fn calculate_integral_coords(function_params : &FunctionParams) {
-    let mut output = File::create("integral_coords").unwrap();
+fn calculate_derivative_coords(function_params : &FunctionParams) -> (Vec<f64>, Vec<f64>) {
+    let mut i : f64 = function_params.a;
+
+    let mut coords_x : Vec<f64> = Vec::new();
+    let mut coords_y : Vec<f64> = Vec::new();
+
+    let mut ctx = Context::new();
+    ctx.var("n", function_params.n)
+       .var("c", function_params.c);
+    let func = (function_params.f).parse::<Expr>().unwrap().bind_with_context(ctx, "x").unwrap();
+
+    while i < function_params.b {
+        coords_x.push(i);
+        coords_y.push((func(i + function_params.h) / func(i)).powf(1.0 / function_params.h));
+        i += function_params.h;
+    }
+
+    return (coords_x, coords_y);
+}
+
+fn calculate_integral_coords(function_params : &FunctionParams) -> (Vec<f64>, Vec<f64>) {
     let mut i : f64 = function_params.a;
     let mut integral : f64 = 1.0;
+
+    let mut coords_x : Vec<f64> = Vec::new();
+    let mut coords_y : Vec<f64> = Vec::new();
 
     let mut ctx = Context::new();
     ctx.var("n", function_params.n)
@@ -138,24 +164,39 @@ fn calculate_integral_coords(function_params : &FunctionParams) {
 
     while i < function_params.b {
         integral *= func(i).powf(function_params.h);
-        writeln!(&mut output, "{} {}", i, integral).unwrap();
+        coords_x.push(i);
+        coords_y.push(integral);
         i += function_params.h;
     }
+
+    return (coords_x, coords_y);
 }
 
-fn calculate_derivative_coords(function_params : &FunctionParams) {
-    let mut output = File::create("derivative_coords").unwrap();
-    let mut i : f64 = function_params.a;
+fn draw_plot(coords : &Vec<(Vec<f64>, Vec<f64>)>) {
+    let mut fg = Figure::new();
 
-    let mut ctx = Context::new();
-    ctx.var("n", function_params.n)
-       .var("c", function_params.c);
-    let func = (function_params.f).parse::<Expr>().unwrap().bind_with_context(ctx, "x").unwrap();
+    // if coords[0].0.len() > 0 {
+    //     fg.axes2d().lines(&coords[0].0, &coords[0].1, &[LineWidth(2.0), Color("red"), Caption("function")]);
+    // }
 
-    while i < function_params.b {
-        writeln!(&mut output, "{} {}", i, (func(i + function_params.h) / func(i)).powf(1.0 / function_params.h)).unwrap();
-        i += function_params.h;
-    }
+    // if coords[1].0.len() > 0 {
+    //     fg.axes2d().lines(&coords[1].0, &coords[1].1, &[LineWidth(2.0), Color("blue"), Caption("derivative")]);
+    // }
+
+    // if coords[2].0.len() > 0 {
+    //     fg.axes2d().lines(&coords[2].0, &coords[2].1, &[LineWidth(2.0), Color("green"), Caption("integral")]);
+    // }
+
+    fg.axes2d()
+        .lines(&coords[0].0, &coords[0].1, &[LineWidth(2.0), Color("red"), Caption("function")])
+        .lines(&coords[2].0, &coords[2].1, &[LineWidth(2.0), Color("green"), Caption("integral")])
+        .lines(&coords[1].0, &coords[1].1, &[LineWidth(2.0), Color("blue"), Caption("derivative")])
+        .set_y_ticks(Some((Auto, 2)), &[], &[])
+        .set_grid_options(true, &[LineStyle(Solid), Color("black")])
+        .set_x_grid(true)
+        .set_y_grid(true);
+
+    fg.save_to_svg("../../plot.svg", 800, 400);
 }
 
 
@@ -164,15 +205,29 @@ fn main() {
 
     let (function_params, plot_type) : (FunctionParams, PlotType) = parse_input_params(args);
 
-    if plot_type.function {
-        calculate_function_coords(&function_params);
-    }
+    let mut coords : Vec<(Vec<f64>, Vec<f64>)> = Vec::new();
 
-    if plot_type.integral {
-        calculate_integral_coords(&function_params);
+
+    if plot_type.function {
+        coords.push(calculate_function_coords(&function_params));
+    }
+    else {
+        coords.push((Vec::new(), Vec::new()))
     }
 
     if plot_type.derivative {
-        calculate_derivative_coords(&function_params);
+        coords.push(calculate_derivative_coords(&function_params));
     }
+    else {
+        coords.push((Vec::new(), Vec::new()))
+    }
+
+    if plot_type.integral {
+        coords.push(calculate_integral_coords(&function_params));
+    }
+    else {
+        coords.push((Vec::new(), Vec::new()))
+    }
+
+    draw_plot(&coords);
 }

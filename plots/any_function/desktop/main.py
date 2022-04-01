@@ -1,57 +1,12 @@
 import os
 import sys
 
-import matplotlib.pyplot
-
 from PyQt5 import uic
 from PyQt5.Qt import QMainWindow, QApplication
 from PyQt5.QtGui import QPixmap
 
-def calculate(function_params, plot_type):
+def draw(function_params, plot_type):
     os.system(f"./run_solver.sh {function_params.function} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h}")
-
-def visualize(plot_type):
-    os.system("if [ -f plot.png ]; then rm plot.png; fi;")
-
-    if plot_type.draw_function:
-        coords = open("../solver/target/release/function_coords", "r")
-
-        xy = coords.read().split()
-        coords.close()
-        x = [float(xy[i]) for i in range(0, len(xy), 2)]
-        y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
-
-        if plot_type.draw_points:
-            matplotlib.pyplot.scatter(x, y, c = 'red', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'red', label = 'function')
-
-    if plot_type.draw_integral:
-        coords = open("../solver/target/release/integral_coords", "r")
-
-        xy = coords.read().split()
-        coords.close()
-        x = [float(xy[i]) for i in range(0, len(xy), 2)]
-        y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
-
-        if plot_type.draw_points:
-            matplotlib.pyplot.scatter(x, y, c = 'green', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'green', label = 'integral')
-
-    if plot_type.draw_derivative:
-        coords = open("../solver/target/release/derivative_coords", "r")
-
-        xy = coords.read().split()
-        coords.close()
-        x = [float(xy[i]) for i in range(0, len(xy), 2)]
-        y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
-
-        if plot_type.draw_points:
-            matplotlib.pyplot.scatter(x, y, c = 'blue', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'blue', label = 'derivative')
-
-    matplotlib.pyplot.legend()
-    matplotlib.pyplot.savefig('plot.png')
-    matplotlib.pyplot.close()
 
 
 class Function_params:
@@ -80,7 +35,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi('ui/main.ui', self)
         self.setFixedSize(self.size())
-        self.plot = QPixmap('plot.png')
+        self.plot = QPixmap('../solver/plot.svg')
         self.plot_label.setPixmap(self.plot)
 
         self.function_params = Function_params()
@@ -92,10 +47,10 @@ class MainWindow(QMainWindow):
         self.slider_b.setValue(int(self.function_params.b * 10))
         self.slider_h.setValue(int(self.function_params.h * 110))
 
-        self.points_check_box.toggled.connect(self.draw_plot)
-        self.function_check_box.toggled.connect(self.draw_plot)
-        self.integral_check_box.toggled.connect(self.draw_plot)
-        self.derivative_check_box.toggled.connect(self.draw_plot)
+        self.points_check_box.toggled.connect(self.call_solver)
+        self.function_check_box.toggled.connect(self.call_solver)
+        self.integral_check_box.toggled.connect(self.call_solver)
+        self.derivative_check_box.toggled.connect(self.call_solver)
 
         self.slider_n.valueChanged.connect(lambda: self.change_slider('n', self.slider_n.value()))
         self.slider_c.valueChanged.connect(lambda: self.change_slider('c', self.slider_c.value()))
@@ -109,7 +64,7 @@ class MainWindow(QMainWindow):
         self.spin_box_b.valueChanged.connect(lambda: self.change_spin_box('b', self.spin_box_b.value()))
         self.spin_box_h.valueChanged.connect(lambda: self.change_spin_box('h', self.spin_box_h.value()))
 
-        self.draw_plot()
+        self.call_solver()
 
     def change_slider(self, name, value):
         if name == 'n':
@@ -122,7 +77,7 @@ class MainWindow(QMainWindow):
             self.spin_box_b.setValue(value / 10)
         if name == 'h':
             self.spin_box_h.setValue(value / 110)
-        self.draw_plot()
+        self.call_solver()
 
     def change_spin_box(self, name, value):
         new_value = value * 10
@@ -143,9 +98,9 @@ class MainWindow(QMainWindow):
             if (value * 11) > 110:
                 new_value = 110
             self.slider_h.setValue(int(new_value))
-        self.draw_plot()
+        self.call_solver()
 
-    def draw_plot(self):
+    def call_solver(self):
         self.function_params.function = '"' + self.function_line_edit.text().lower().replace(' ', '').replace(',', '.') + '"'
         self.function_params.n = float(self.spin_box_n.value())
         self.function_params.c = float(self.spin_box_c.value())
@@ -158,10 +113,9 @@ class MainWindow(QMainWindow):
         self.plot_type.draw_integral = self.integral_check_box.isChecked()
         self.plot_type.draw_derivative = self.derivative_check_box.isChecked()
 
-        calculate(self.function_params, self.plot_type)
-        visualize(self.plot_type)
+        draw(self.function_params, self.plot_type)
 
-        self.plot = QPixmap('plot.png')
+        self.plot = QPixmap('../solver/plot.svg')
         self.plot_label.setPixmap(self.plot)
 
 app = QApplication(sys.argv)
