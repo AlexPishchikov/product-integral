@@ -395,7 +395,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="graph_label">
+   <widget class="QLabel" name="plot_label">
     <property name="geometry">
      <rect>
       <x>20</x>

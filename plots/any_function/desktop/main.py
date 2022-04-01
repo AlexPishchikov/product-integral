@@ -1,24 +1,5 @@
 import os
 import sys
-import math
-
-from math import sin as sin
-from math import cos as cos
-from math import tan as tan
-
-from math import sinh as sinh
-from math import cosh as cosh
-from math import tanh as tanh
-
-from math import asin as asin
-from math import acos as acos
-from math import atan as atan
-
-from math import asinh as asinh
-from math import acosh as acosh
-from math import atanh as atanh
-
-from math import log as ln
 
 import matplotlib.pyplot
 
@@ -28,10 +9,9 @@ from PyQt5.QtGui import QPixmap
 
 def calculate(function_params, plot_type):
     os.system(f"./run_solver.sh {function_params.function} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h}")
-    # print(f"./run_solver.sh {function_params.function} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h}")
 
 def visualize(plot_type):
-    os.system("rm plot.png")
+    os.system("if [ -f plot.png ]; then rm plot.png; fi;")
 
     if plot_type.draw_function:
         coords = open("../solver/target/release/function_coords", "r")

@@ -14,13 +14,13 @@ pub struct FunctionParams {
     pub h : f64,
 }
 
-pub struct GraphType {
+pub struct PlotType {
     pub function : bool,
     pub integral : bool,
     pub derivative : bool,
 }
 
-fn parse_input_params(args : Vec<String>) -> (FunctionParams, GraphType) {
+fn parse_input_params(args : Vec<String>) -> (FunctionParams, PlotType) {
     let mut function_params : FunctionParams = {
         FunctionParams {
             f : "x".to_string(),
@@ -32,15 +32,19 @@ fn parse_input_params(args : Vec<String>) -> (FunctionParams, GraphType) {
         }
     };
 
-    let mut graph_type : GraphType = {
-        GraphType {
+    let mut plot_type : PlotType = {
+        PlotType {
             function   : true,
             integral   : true,
             derivative : true,
         }
     };
 
-    let input_graph_type : &str = &args[1];
+    if args.len() == 0 {
+        return (function_params, plot_type);
+    }
+
+    let input_plot_type : &str = &args[1];
 
     let input_f = args[0].parse::<String>();
 
@@ -50,9 +54,9 @@ fn parse_input_params(args : Vec<String>) -> (FunctionParams, GraphType) {
     let input_b = args[5].parse::<f64>();
     let input_h = args[6].parse::<f64>();
 
-    graph_type.function   = if input_graph_type.chars().nth(0) == Some('1') {true} else {false};
-    graph_type.integral   = if input_graph_type.chars().nth(1) == Some('1') {true} else {false};
-    graph_type.derivative = if input_graph_type.chars().nth(2) == Some('1') {true} else {false};
+    plot_type.function   = if input_plot_type.chars().nth(0) == Some('1') {true} else {false};
+    plot_type.integral   = if input_plot_type.chars().nth(1) == Some('1') {true} else {false};
+    plot_type.derivative = if input_plot_type.chars().nth(2) == Some('1') {true} else {false};
 
     match input_f {
         Ok(input_f) => {
@@ -104,7 +108,7 @@ fn parse_input_params(args : Vec<String>) -> (FunctionParams, GraphType) {
         },
     }
 
-    return (function_params, graph_type);
+    return (function_params, plot_type);
 }
 
 fn calculate_function_coords(function_params : &FunctionParams) {
@@ -158,22 +162,17 @@ fn calculate_derivative_coords(function_params : &FunctionParams) {
 fn main() {
     let args : Vec<String> = env::args().skip(1).collect();
 
-    if args.len() == 0 {
-        println!("arguments not found");
-        process::exit(1);
-    }
+    let (function_params, plot_type) : (FunctionParams, PlotType) = parse_input_params(args);
 
-    let (function_params, graph_type) : (FunctionParams, GraphType) = parse_input_params(args);
-
-    if graph_type.function {
+    if plot_type.function {
         calculate_function_coords(&function_params);
     }
 
-    if graph_type.integral {
+    if plot_type.integral {
         calculate_integral_coords(&function_params);
     }
 
-    if graph_type.derivative {
+    if plot_type.derivative {
         calculate_derivative_coords(&function_params);
     }
 }

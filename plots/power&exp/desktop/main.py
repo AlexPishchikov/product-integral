@@ -7,9 +7,9 @@ from PyQt5 import uic
 from PyQt5.Qt import QMainWindow, QApplication
 from PyQt5.QtGui import QPixmap
 
-def visualize(graph_type):
-    os.system("rm graph.png")
-    if graph_type.draw_function:
+def visualize(plot_type):
+    os.system("if [ -f plot.png ]; then rm plot.png; fi;")
+    if plot_type.draw_function:
         coords = open("../solver/function_coords", "r")
 
         xy = coords.read().split()
@@ -17,11 +17,11 @@ def visualize(graph_type):
         x = [float(xy[i]) for i in range(0, len(xy), 2)]
         y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
 
-        if graph_type.draw_points:
+        if plot_type.draw_points:
             matplotlib.pyplot.scatter(x, y, c = 'red', linewidths = 2)
         matplotlib.pyplot.plot(x, y, c = 'red', label = 'function')
 
-    if graph_type.draw_integral:
+    if plot_type.draw_integral:
         coords = open("../solver/integral_coords", "r")
 
         xy = coords.read().split()
@@ -29,11 +29,11 @@ def visualize(graph_type):
         x = [float(xy[i]) for i in range(0, len(xy), 2)]
         y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
 
-        if graph_type.draw_points:
+        if plot_type.draw_points:
             matplotlib.pyplot.scatter(x, y, c = 'green', linewidths = 2)
         matplotlib.pyplot.plot(x, y, c = 'green', label = 'integral')
 
-    if graph_type.draw_derivative:
+    if plot_type.draw_derivative:
         coords = open("../solver/derivative_coords", "r")
 
         xy = coords.read().split()
@@ -41,12 +41,12 @@ def visualize(graph_type):
         x = [float(xy[i]) for i in range(0, len(xy), 2)]
         y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
 
-        if graph_type.draw_points:
+        if plot_type.draw_points:
             matplotlib.pyplot.scatter(x, y, c = 'blue', linewidths = 2)
         matplotlib.pyplot.plot(x, y, c = 'blue', label = 'derivative')
 
     matplotlib.pyplot.legend()
-    matplotlib.pyplot.savefig('graph.png')
+    matplotlib.pyplot.savefig('plot.png')
     matplotlib.pyplot.close()
 
 
@@ -59,7 +59,7 @@ class Function_params:
         self.b = 3.0
         self.h = 0.03
 
-class Graph_type:
+class Plot_type:
     def __init__(self):
         self.draw_function = True
         self.draw_integral = True
@@ -75,11 +75,11 @@ class MainWindow(QMainWindow):
         os.system("./compile_solver.sh")
         uic.loadUi('ui/main.ui', self)
         self.setFixedSize(self.size())
-        self.graph = QPixmap('graph.png')
-        self.graph_label.setPixmap(self.graph)
+        self.plot = QPixmap('plot.png')
+        self.plot_label.setPixmap(self.plot)
 
         self.function_params = Function_params()
-        self.graph_type = Graph_type()
+        self.plot_type = Plot_type()
 
         self.slider_n.setValue(int(self.function_params.n * 10))
         self.slider_c.setValue(int(self.function_params.c * 10))
@@ -87,13 +87,13 @@ class MainWindow(QMainWindow):
         self.slider_b.setValue(int(self.function_params.b * 10))
         self.slider_h.setValue(int(self.function_params.h * 110))
 
-        self.power_function_radio_button.toggled.connect(self.draw_graph)
-        self.exponential_function_radio_button.toggled.connect(self.draw_graph)
+        self.power_function_radio_button.toggled.connect(self.draw_plot)
+        self.exponential_function_radio_button.toggled.connect(self.draw_plot)
 
-        self.points_check_box.toggled.connect(self.draw_graph)
-        self.function_check_box.toggled.connect(self.draw_graph)
-        self.integral_check_box.toggled.connect(self.draw_graph)
-        self.derivative_check_box.toggled.connect(self.draw_graph)
+        self.points_check_box.toggled.connect(self.draw_plot)
+        self.function_check_box.toggled.connect(self.draw_plot)
+        self.integral_check_box.toggled.connect(self.draw_plot)
+        self.derivative_check_box.toggled.connect(self.draw_plot)
 
         self.slider_n.valueChanged.connect(lambda: self.change_slider('n', self.slider_n.value()))
         self.slider_c.valueChanged.connect(lambda: self.change_slider('c', self.slider_c.value()))
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         self.spin_box_b.valueChanged.connect(lambda: self.change_spin_box('b', self.spin_box_b.value()))
         self.spin_box_h.valueChanged.connect(lambda: self.change_spin_box('h', self.spin_box_h.value()))
 
-        self.draw_graph()
+        self.draw_plot()
 
     def change_slider(self, name, value):
         if name == 'n':
@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
             self.spin_box_b.setValue(value / 10)
         if name == 'h':
             self.spin_box_h.setValue(value / 110)
-        self.draw_graph()
+        self.draw_plot()
 
     def change_spin_box(self, name, value):
         new_value = value * 10
@@ -141,9 +141,9 @@ class MainWindow(QMainWindow):
             if (value * 11) > 110:
                 new_value = 110
             self.slider_h.setValue(int(new_value))
-        self.draw_graph()
+        self.draw_plot()
 
-    def draw_graph(self):
+    def draw_plot(self):
         self.function_params.type = 0 if self.power_function_radio_button.isChecked() else 1
         self.function_params.n = float(self.spin_box_n.value())
         self.function_params.c = float(self.spin_box_c.value())
@@ -151,17 +151,17 @@ class MainWindow(QMainWindow):
         self.function_params.b = float(self.spin_box_b.value())
         self.function_params.h = float(self.spin_box_h.value())
 
-        self.graph_type.draw_points = self.points_check_box.isChecked()
-        self.graph_type.draw_function = self.function_check_box.isChecked()
-        self.graph_type.draw_integral = self.integral_check_box.isChecked()
-        self.graph_type.draw_derivative = self.derivative_check_box.isChecked()
+        self.plot_type.draw_points = self.points_check_box.isChecked()
+        self.plot_type.draw_function = self.function_check_box.isChecked()
+        self.plot_type.draw_integral = self.integral_check_box.isChecked()
+        self.plot_type.draw_derivative = self.derivative_check_box.isChecked()
 
-        os.system(f"./run_solver.sh {self.function_params.type} {self.graph_type.to_string()} {self.function_params.n} {self.function_params.c} {self.function_params.a} {self.function_params.b} {self.function_params.h}")
+        os.system(f"./run_solver.sh {self.function_params.type} {self.plot_type.to_string()} {self.function_params.n} {self.function_params.c} {self.function_params.a} {self.function_params.b} {self.function_params.h}")
 
-        visualize(self.graph_type)
+        visualize(self.plot_type)
 
-        self.graph = QPixmap('graph.png')
-        self.graph_label.setPixmap(self.graph)
+        self.plot = QPixmap('plot.png')
+        self.plot_label.setPixmap(self.plot)
 
 app = QApplication(sys.argv)
 
