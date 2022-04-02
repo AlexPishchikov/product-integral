@@ -10,21 +10,21 @@ pub fn calculate(function_params : &FunctionParams, plot_type : &PlotType) -> Ve
         coords.push(calculate_function_coords(&function_params));
     }
     else {
-        coords.push((Vec::new(), Vec::new()));
+        coords.push((vec![function_params.a], vec![function_params.a]));
     }
 
     if plot_type.derivative {
         coords.push(calculate_derivative_coords(&function_params));
     }
     else {
-        coords.push((Vec::new(), Vec::new()));
+        coords.push((vec![function_params.a], vec![function_params.a]));
     }
 
     if plot_type.integral {
         coords.push(calculate_integral_coords(&function_params));
     }
     else {
-        coords.push((Vec::new(), Vec::new()));
+        coords.push((vec![function_params.a], vec![function_params.a]));
     }
 
     return coords;
