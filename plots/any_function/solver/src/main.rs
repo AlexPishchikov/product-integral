@@ -17,5 +17,5 @@ fn main() {
 
     let (function_params, plot_type) : (FunctionParams, PlotType) = parse_input_params(args);
 
-    draw_plot(&calculate(&function_params, &plot_type));
+    draw_plot(&calculate(&function_params, &plot_type), plot_type);
 }

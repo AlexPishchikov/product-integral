@@ -1,16 +1,15 @@
 use gnuplot::*;
 use std::process;
 
-pub fn draw_plot(coords : &Vec<(Vec<f64>, Vec<f64>)>) {
+use crate::input_parser::PlotType;
+
+pub fn draw_plot(coords : &Vec<(Vec<f64>, Vec<f64>)>, plot_type : PlotType) {
     let mut fg = Figure::new();
 
     fg.axes2d()
-        .lines(&coords[0].0, &coords[0].1, &[LineWidth(2.0), Color("red"), Caption("function")])
-        .lines(&coords[2].0, &coords[2].1, &[LineWidth(2.0), Color("green"), Caption("integral")])
-        .lines(&coords[1].0, &coords[1].1, &[LineWidth(2.0), Color("blue"), Caption("derivative")])
-        // .points(&coords[0].0, &coords[0].1, &[PointSize(0.8), PointSymbol('.'), Color("red")])
-        // .points(&coords[2].0, &coords[2].1, &[PointSize(0.8), PointSymbol('.'), Color("green")])
-        // .points(&coords[1].0, &coords[1].1, &[PointSize(0.8), PointSymbol('.'), Color("blue")])
+        .lines_points(&coords[0].0, &coords[0].1, &[Caption("function"), PointSize(if plot_type.points {0.4} else {0.0}), PointSymbol('O'), Color("red")])
+        .lines_points(&coords[1].0, &coords[1].1, &[Caption("derivative"), PointSize(if plot_type.points {0.4} else {0.0}), PointSymbol('O'), Color("blue")])
+        .lines_points(&coords[2].0, &coords[2].1, &[Caption("integral"), PointSize(if plot_type.points {0.4} else {0.0}), PointSymbol('O'), Color("green")])
         .set_y_ticks(Some((Auto, 2)), &[], &[])
         .set_grid_options(true, &[LineStyle(Solid), Color("black")])
         .set_x_grid(true)

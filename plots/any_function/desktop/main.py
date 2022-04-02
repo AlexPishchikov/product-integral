@@ -26,7 +26,7 @@ class plot_type:
         self.draw_points = False
 
     def to_string(self):
-        return f"{int(self.draw_function == True)}{int(self.draw_integral == True)}{int(self.draw_derivative == True)}"
+        return f"{int(self.draw_function)}{int(self.draw_integral)}{int(self.draw_derivative)}{int(self.draw_points)}"
 
 
 class MainWindow(QMainWindow):

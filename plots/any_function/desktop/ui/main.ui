@@ -185,9 +185,9 @@
          <item row="2" column="3">
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QCheckBox" name="integral_check_box">
+            <widget class="QCheckBox" name="derivative_check_box">
              <property name="text">
-              <string>integral</string>
+              <string>derivative</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -195,9 +195,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="derivative_check_box">
+            <widget class="QCheckBox" name="integral_check_box">
              <property name="text">
-              <string>derivative</string>
+              <string>integral</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -312,7 +312,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>n*x + c</string>
+              <string>x^3</string>
              </property>
             </widget>
            </item>
