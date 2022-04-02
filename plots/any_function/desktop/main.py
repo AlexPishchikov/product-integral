@@ -5,28 +5,28 @@ from PyQt5 import uic
 from PyQt5.Qt import QMainWindow, QApplication
 from PyQt5.QtGui import QPixmap
 
-def draw(function_params, plot_type):
+def run_solver(function_params, plot_type):
     os.system(f"./run_solver.sh {function_params.function} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h}")
 
 
 class Function_params:
     def __init__(self):
-        self.function = "nx + c"
+        self.function = "x^3"
         self.n = 1.0
         self.c = 1.0
         self.a = 1.0
         self.b = 3.0
-        self.h = 0.03
+        self.h = 0.01
 
 class plot_type:
     def __init__(self):
+        self.draw_points = False
         self.draw_function = True
         self.draw_integral = True
         self.draw_derivative = True
-        self.draw_points = False
 
     def to_string(self):
-        return f"{int(self.draw_function)}{int(self.draw_integral)}{int(self.draw_derivative)}{int(self.draw_points)}"
+        return f"{int(self.draw_points)}{int(self.draw_function)}{int(self.draw_derivative)}{int(self.draw_integral)}"
 
 
 class MainWindow(QMainWindow):
@@ -113,7 +113,7 @@ class MainWindow(QMainWindow):
         self.plot_type.draw_integral = self.integral_check_box.isChecked()
         self.plot_type.draw_derivative = self.derivative_check_box.isChecked()
 
-        draw(self.function_params, self.plot_type)
+        run_solver(self.function_params, self.plot_type)
 
         self.plot = QPixmap('../solver/plot.svg')
         self.plot_label.setPixmap(self.plot)

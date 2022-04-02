@@ -10,10 +10,10 @@ pub struct FunctionParams {
 }
 
 pub struct PlotType {
+    pub points     : bool,
     pub function   : bool,
     pub derivative : bool,
     pub integral   : bool,
-    pub points     : bool,
 }
 
 
@@ -31,10 +31,10 @@ pub fn parse_input_params(args : Vec<String>) -> (FunctionParams, PlotType) {
 
     let mut plot_type : PlotType = {
         PlotType {
+            points     : false,
             function   : true,
             derivative : true,
             integral   : true,
-            points     : false,
         }
     };
 
@@ -52,10 +52,11 @@ pub fn parse_input_params(args : Vec<String>) -> (FunctionParams, PlotType) {
     let input_b = args[5].parse::<f64>();
     let input_h = args[6].parse::<f64>();
 
-    plot_type.function   = if input_plot_type.chars().nth(0) == Some('1') {true} else {false};
-    plot_type.derivative = if input_plot_type.chars().nth(1) == Some('1') {true} else {false};
-    plot_type.integral   = if input_plot_type.chars().nth(2) == Some('1') {true} else {false};
-    plot_type.points     = if input_plot_type.chars().nth(3) == Some('1') {true} else {false};
+
+    plot_type.points     = if input_plot_type.chars().nth(0) == Some('1') {true} else {false};
+    plot_type.function   = if input_plot_type.chars().nth(1) == Some('1') {true} else {false};
+    plot_type.derivative = if input_plot_type.chars().nth(2) == Some('1') {true} else {false};
+    plot_type.integral   = if input_plot_type.chars().nth(3) == Some('1') {true} else {false};
 
     match input_f {
         Ok(input_f) => {
