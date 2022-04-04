@@ -1,3 +1,3 @@
 cd ..
 cd solver/
-rustc main.rs
+cargo run -r

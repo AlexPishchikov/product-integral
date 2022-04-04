@@ -1,7 +1,7 @@
 use gnuplot::*;
 use std::process;
 
-use crate::input_parser::PlotType;
+use crate::PlotType;
 
 pub fn draw_plot(coords : &Vec<(Vec<f64>, Vec<f64>)>, plot_type : PlotType) {
     let mut fg = Figure::new();

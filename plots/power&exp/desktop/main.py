@@ -7,47 +7,8 @@ from PyQt5 import uic
 from PyQt5.Qt import QMainWindow, QApplication
 from PyQt5.QtGui import QPixmap
 
-def visualize(plot_type):
-    os.system("if [ -f plot.png ]; then rm plot.png; fi;")
-    if plot_type.draw_function:
-        coords = open("../solver/function_coords", "r")
-
-        xy = coords.read().split()
-        coords.close()
-        x = [float(xy[i]) for i in range(0, len(xy), 2)]
-        y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
-
-        if plot_type.draw_points:
-            matplotlib.pyplot.scatter(x, y, c = 'red', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'red', label = 'function')
-
-    if plot_type.draw_integral:
-        coords = open("../solver/integral_coords", "r")
-
-        xy = coords.read().split()
-        coords.close()
-        x = [float(xy[i]) for i in range(0, len(xy), 2)]
-        y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
-
-        if plot_type.draw_points:
-            matplotlib.pyplot.scatter(x, y, c = 'green', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'green', label = 'integral')
-
-    if plot_type.draw_derivative:
-        coords = open("../solver/derivative_coords", "r")
-
-        xy = coords.read().split()
-        coords.close()
-        x = [float(xy[i]) for i in range(0, len(xy), 2)]
-        y = [float(xy[i + 1]) for i in range(0, len(xy), 2)]
-
-        if plot_type.draw_points:
-            matplotlib.pyplot.scatter(x, y, c = 'blue', linewidths = 2)
-        matplotlib.pyplot.plot(x, y, c = 'blue', label = 'derivative')
-
-    matplotlib.pyplot.legend()
-    matplotlib.pyplot.savefig('plot.png')
-    matplotlib.pyplot.close()
+def draw_plot(function_params, plot_type):
+    os.system(f"./run_solver.sh {function_params.type} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h}")
 
 
 class Function_params:
@@ -57,17 +18,17 @@ class Function_params:
         self.c = 1.0
         self.a = 1.0
         self.b = 3.0
-        self.h = 0.03
+        self.h = 0.01
 
 class Plot_type:
     def __init__(self):
+        self.draw_points = False
         self.draw_function = True
         self.draw_integral = True
         self.draw_derivative = True
-        self.draw_points = False
 
     def to_string(self):
-        return f"{int(self.draw_function == True)}{int(self.draw_integral == True)}{int(self.draw_derivative == True)}"
+        return f"{int(self.draw_points)}{int(self.draw_function)}{int(self.draw_integral)}{int(self.draw_derivative)}"
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -75,7 +36,7 @@ class MainWindow(QMainWindow):
         os.system("./compile_solver.sh")
         uic.loadUi('ui/main.ui', self)
         self.setFixedSize(self.size())
-        self.plot = QPixmap('plot.png')
+        self.plot = QPixmap('../solver/plot.svg')
         self.plot_label.setPixmap(self.plot)
 
         self.function_params = Function_params()
@@ -156,11 +117,9 @@ class MainWindow(QMainWindow):
         self.plot_type.draw_integral = self.integral_check_box.isChecked()
         self.plot_type.draw_derivative = self.derivative_check_box.isChecked()
 
-        os.system(f"./run_solver.sh {self.function_params.type} {self.plot_type.to_string()} {self.function_params.n} {self.function_params.c} {self.function_params.a} {self.function_params.b} {self.function_params.h}")
+        draw_plot(self.function_params, self.plot_type)
 
-        visualize(self.plot_type)
-
-        self.plot = QPixmap('plot.png')
+        self.plot = QPixmap('../solver/plot.svg')
         self.plot_label.setPixmap(self.plot)
 
 app = QApplication(sys.argv)
