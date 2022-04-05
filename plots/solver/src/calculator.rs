@@ -4,27 +4,34 @@ use crate::input_parser::{FunctionParams, PlotType};
 
 
 pub fn calculate(function_params : &FunctionParams, plot_type : &PlotType) -> Vec<(Vec<f64>, Vec<f64>)> {
-    let mut coords : Vec<(Vec<f64>, Vec<f64>)> = Vec::new();
+    let mut coords : Vec<(Vec<f64>, Vec<f64>)> = vec![
+        (vec![function_params.a], vec![function_params.a]),
+        (vec![function_params.a], vec![function_params.a]),
+        (vec![function_params.a], vec![function_params.a]),
+    ];
 
     if plot_type.function {
-        coords.push(calculate_function_coords(&function_params));
-    }
-    else {
-        coords.push((vec![function_params.a], vec![function_params.a]));
+        coords[0] = calculate_function_coords(&function_params);
     }
 
     if plot_type.derivative {
-        coords.push(calculate_derivative_coords(&function_params));
-    }
-    else {
-        coords.push((vec![function_params.a], vec![function_params.a]));
+        coords[1] = calculate_derivative_coords(&function_params);
     }
 
     if plot_type.integral {
-        coords.push(calculate_integral_coords(&function_params));
+        coords[2] = calculate_integral_coords(&function_params);
     }
-    else {
-        coords.push((vec![function_params.a], vec![function_params.a]));
+
+    if coords[0].0.len() == 0 {
+        coords[0] = (vec![function_params.a], vec![function_params.a]);
+    }
+
+    if coords[1].0.len() == 0 {
+        coords[1] = (vec![function_params.a], vec![function_params.a]);
+    }
+
+    if coords[2].0.len() == 0 {
+        coords[2] = (vec![function_params.a], vec![function_params.a]);
     }
 
     return coords;
@@ -42,8 +49,11 @@ fn calculate_function_coords(function_params : &FunctionParams) -> (Vec<f64>, Ve
     let func = (function_params.f).parse::<Expr>().unwrap().bind_with_context(ctx, "x").unwrap();
 
     while i < function_params.b {
-        coords_x.push(i);
-        coords_y.push(func(i));
+        let f_i = func(i);
+        if f_i.abs() < function_params.max {
+            coords_x.push(i);
+            coords_y.push(f_i);
+        }
         i += function_params.h;
     }
 
@@ -62,8 +72,11 @@ fn calculate_derivative_coords(function_params : &FunctionParams) -> (Vec<f64>, 
     let func = (function_params.f).parse::<Expr>().unwrap().bind_with_context(ctx, "x").unwrap();
 
     while i < function_params.b {
-        coords_x.push(i);
-        coords_y.push((func(i + function_params.h) / func(i)).powf(1.0 / function_params.h));
+        let f_i = (func(i + function_params.h) / func(i)).powf(1.0 / function_params.h);
+        if f_i.abs() < function_params.max {
+            coords_x.push(i);
+            coords_y.push(f_i);
+        }
         i += function_params.h;
     }
 
@@ -84,8 +97,10 @@ fn calculate_integral_coords(function_params : &FunctionParams) -> (Vec<f64>, Ve
 
     while i < function_params.b {
         integral *= func(i).powf(function_params.h);
-        coords_x.push(i);
-        coords_y.push(integral);
+        if integral.abs() < function_params.max {
+            coords_x.push(i);
+            coords_y.push(integral);
+        }
         i += function_params.h;
     }
 
