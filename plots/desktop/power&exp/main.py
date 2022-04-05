@@ -1,14 +1,12 @@
 import os
 import sys
 
-import matplotlib.pyplot
-
 from PyQt5 import uic
 from PyQt5.Qt import QMainWindow, QApplication
 from PyQt5.QtGui import QPixmap
 
 def draw_plot(function_params, plot_type):
-    os.system(f"./run_solver.sh {function_params.type} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h}")
+    os.system(f"./run_solver.sh {function_params.type} {plot_type.to_string()} {function_params.n} {function_params.c} {function_params.a} {function_params.b} {function_params.h} {function_params.max}")
 
 
 class Function_params:
@@ -19,6 +17,7 @@ class Function_params:
         self.a = 1.0
         self.b = 3.0
         self.h = 0.01
+        self.max = 100000
 
 class Plot_type:
     def __init__(self):
@@ -111,6 +110,7 @@ class MainWindow(QMainWindow):
         self.function_params.a = float(self.spin_box_a.value())
         self.function_params.b = float(self.spin_box_b.value())
         self.function_params.h = float(self.spin_box_h.value())
+        self.function_params.max = self.max_line_edit.text().lower().replace(' ', '').replace(',', '.')
 
         self.plot_type.draw_points = self.points_check_box.isChecked()
         self.plot_type.draw_function = self.function_check_box.isChecked()
