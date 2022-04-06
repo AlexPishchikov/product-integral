@@ -1,5 +1,7 @@
 use meval::*;
 
+use std::f64::NAN;
+
 use crate::input_parser::{FunctionParams, PlotType};
 
 
@@ -50,9 +52,12 @@ fn calculate_function_coords(function_params : &FunctionParams) -> (Vec<f64>, Ve
 
     while i < function_params.b {
         let f_i = func(i);
+        coords_x.push(i);
         if f_i.abs() < function_params.max {
-            coords_x.push(i);
             coords_y.push(f_i);
+        }
+        else {
+            coords_y.push(NAN);
         }
         i += function_params.h;
     }
@@ -73,9 +78,12 @@ fn calculate_derivative_coords(function_params : &FunctionParams) -> (Vec<f64>, 
 
     while i < function_params.b {
         let f_i = (func(i + function_params.h) / func(i)).powf(1.0 / function_params.h);
+        coords_x.push(i);
         if f_i.abs() < function_params.max {
-            coords_x.push(i);
             coords_y.push(f_i);
+        }
+        else {
+            coords_y.push(NAN);
         }
         i += function_params.h;
     }
@@ -97,9 +105,12 @@ fn calculate_integral_coords(function_params : &FunctionParams) -> (Vec<f64>, Ve
 
     while i < function_params.b {
         integral *= func(i).powf(function_params.h);
+        coords_x.push(i);
         if integral.abs() < function_params.max {
-            coords_x.push(i);
             coords_y.push(integral);
+        }
+        else {
+            coords_y.push(NAN);
         }
         i += function_params.h;
     }
